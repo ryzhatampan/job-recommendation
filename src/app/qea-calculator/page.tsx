@@ -5,22 +5,23 @@ import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChartBig, Wrench, GraduationCap, Award, Sparkles, Info } from 'lucide-react';
+import { BarChartBig, SunMoon, BookOpen, Clock, Users, Info } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { deriveQeaParameters, type DeriveQeaParametersInput, type DeriveQeaParametersOutput } from '@/ai/flows/derive-qea-parameters-flow';
+import type { UserQeaPreferences } from '@/lib/qea';
+
 
 const qeaFormSchema = z.object({
-  skills: z.string().min(3, "Keahlian harus diisi, minimal 3 karakter.").default(""),
-  major: z.string().min(3, "Jurusan harus diisi, minimal 3 karakter.").default(""),
-  degree: z.string().min(2, "Gelar harus diisi, minimal 2 karakter.").default(""),
-  benefitsExpected: z.string().min(10, "Deskripsi benefit yang diharapkan minimal 10 karakter.").default(""), // Changed from benefits to benefitsExpected
+  workLifeBalanceRating: z.number().min(0).max(5).default(3),
+  learningPrograms: z.boolean().default(false),
+  flexibleHours: z.boolean().default(false),
+  hasMentorship: z.boolean().default(false),
 });
 
 type QeaFormValues = z.infer<typeof qeaFormSchema>;
@@ -28,15 +29,15 @@ type QeaFormValues = z.infer<typeof qeaFormSchema>;
 export default function QeaCalculatorPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
 
   const form = useForm<QeaFormValues>({
     resolver: zodResolver(qeaFormSchema),
     defaultValues: {
-      skills: '',
-      major: '',
-      degree: '',
-      benefitsExpected: '',
+      workLifeBalanceRating: 3,
+      learningPrograms: false,
+      flexibleHours: false,
+      hasMentorship: false,
     },
   });
 
@@ -45,28 +46,25 @@ export default function QeaCalculatorPage() {
     setError(null);
 
     try {
-      const derivedParamsInput: DeriveQeaParametersInput = {
-        skills: data.skills,
-        major: data.major,
-        degree: data.degree,
-        benefitsExpected: data.benefitsExpected,
+      const userPreferences: UserQeaPreferences = {
+        workLifeBalanceRating: data.workLifeBalanceRating,
+        learningPrograms: data.learningPrograms,
+        flexibleHours: data.flexibleHours,
+        hasMentorship: data.hasMentorship,
       };
       
-      const derivedParams: DeriveQeaParametersOutput = await deriveQeaParameters(derivedParamsInput);
-
-      // Construct query string for navigation
       const queryParams = new URLSearchParams({
-        pref_wlb: derivedParams.workLifeBalanceRating.toString(),
-        pref_lp: derivedParams.learningPrograms.toString(),
-        pref_fh: derivedParams.flexibleHours.toString(),
-        pref_hm: derivedParams.hasMentorship.toString(),
+        pref_wlb: userPreferences.workLifeBalanceRating.toString(),
+        pref_lp: userPreferences.learningPrograms.toString(),
+        pref_fh: userPreferences.flexibleHours.toString(),
+        pref_hm: userPreferences.hasMentorship.toString(),
       });
 
       router.push(`/jobs?${queryParams.toString()}`);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Gagal memproses permintaan.";
-      console.error("QEA derivation or navigation error:", errorMessage);
+      console.error("QEA preference submission or navigation error:", errorMessage);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -79,25 +77,32 @@ export default function QeaCalculatorPage() {
         <CardHeader className="bg-card">
           <CardTitle className="text-2xl flex items-center gap-3">
             <BarChartBig className="h-7 w-7 text-primary" />
-            Kalkulator Preferensi Karir (QEA)
+            Filter Lowongan Berdasarkan Preferensi QEA
           </CardTitle>
           <CardDescription>
-            Masukkan detail profil Anda. Kami akan menganalisisnya untuk menemukan pekerjaan yang paling sesuai dengan preferensi Quality of Employment Attributes (QEA) Anda.
+            Atur preferensi Quality of Employment Attributes (QEA) Anda. Kami akan menampilkan lowongan yang paling sesuai.
           </CardDescription>
         </CardHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <CardContent className="space-y-6 pt-6">
+            <CardContent className="space-y-8 pt-6">
               <FormField
                 control={form.control}
-                name="skills"
+                name="workLifeBalanceRating"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-md"><Wrench className="h-5 w-5 text-muted-foreground" />Keahlian</FormLabel>
+                    <FormLabel className="flex items-center gap-2 text-md"><SunMoon className="h-5 w-5 text-muted-foreground" />Keseimbangan Kerja-Hidup ({field.value}/5)</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Contoh: Pemrograman Python, Analisis Data, Komunikasi Interpersonal" {...field} className="text-base min-h-[100px]" />
+                        <Slider
+                            defaultValue={[field.value]}
+                            min={0}
+                            max={5}
+                            step={0.5}
+                            onValueChange={(value) => field.onChange(value[0])}
+                            className="py-2"
+                        />
                     </FormControl>
-                    <FormDescription>Jelaskan keahlian relevan yang Anda miliki.</FormDescription>
+                    <FormDescription>Seberapa penting keseimbangan antara pekerjaan dan kehidupan pribadi bagi Anda?</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -105,45 +110,75 @@ export default function QeaCalculatorPage() {
 
               <FormField
                 control={form.control}
-                name="major"
+                name="learningPrograms"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-md"><GraduationCap className="h-5 w-5 text-muted-foreground" />Jurusan Kuliah</FormLabel>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-md flex items-center gap-2">
+                            <BookOpen className="h-5 w-5 text-muted-foreground" />
+                            Program Pembelajaran
+                        </FormLabel>
+                        <FormDescription>
+                            Apakah Anda mencari perusahaan dengan program pengembangan diri atau pelatihan?
+                        </FormDescription>
+                    </div>
                     <FormControl>
-                      <Input type="text" placeholder="Contoh: Teknik Informatika" {...field} className="text-base"/>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
-                    <FormDescription>Apa jurusan kuliah Anda (jika ada)?</FormDescription>
-                    <FormMessage />
+                     <FormMessage />
                   </FormItem>
                 )}
               />
 
               <FormField
                 control={form.control}
-                name="degree"
+                name="flexibleHours"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-md"><Award className="h-5 w-5 text-muted-foreground" />Gelar Akademis</FormLabel>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                     <div className="space-y-0.5">
+                        <FormLabel className="text-md flex items-center gap-2">
+                            <Clock className="h-5 w-5 text-muted-foreground" />
+                            Jam Kerja Fleksibel
+                        </FormLabel>
+                        <FormDescription>
+                           Apakah Anda menginginkan opsi jam kerja yang fleksibel?
+                        </FormDescription>
+                    </div>
                     <FormControl>
-                      <Input type="text" placeholder="Contoh: S.Kom, S.E., M.B.A" {...field} className="text-base"/>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
-                    <FormDescription>Apa gelar akademis terakhir Anda (jika ada)?</FormDescription>
-                    <FormMessage />
+                     <FormMessage />
                   </FormItem>
                 )}
               />
               
               <FormField
                 control={form.control}
-                name="benefitsExpected" // Changed from benefits to benefitsExpected
+                name="hasMentorship"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2 text-md"><Sparkles className="h-5 w-5 text-muted-foreground" />Benefit yang Diharapkan</FormLabel>
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
+                    <div className="space-y-0.5">
+                        <FormLabel className="text-md flex items-center gap-2">
+                            <Users className="h-5 w-5 text-muted-foreground" />
+                            Program Mentorship
+                        </FormLabel>
+                        <FormDescription>
+                            Apakah Anda mencari perusahaan yang menyediakan program mentorship?
+                        </FormDescription>
+                    </div>
                     <FormControl>
-                      <Textarea placeholder="Contoh: Gaji di atas rata-rata, asuransi kesehatan keluarga, tunjangan transportasi, program pelatihan, jam kerja fleksibel." {...field} className="text-base min-h-[120px]" />
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
                     </FormControl>
-                    <FormDescription>Sebutkan benefit atau fasilitas penting yang Anda harapkan dari sebuah pekerjaan.</FormDescription>
-                    <FormMessage />
+                     <FormMessage />
                   </FormItem>
                 )}
               />
@@ -151,7 +186,7 @@ export default function QeaCalculatorPage() {
             </CardContent>
             <CardFooter className="flex flex-col items-stretch gap-4 pt-6">
               <Button type="submit" className="w-full text-base py-3" disabled={isLoading}>
-                {isLoading ? <LoadingSpinner /> : 'Temukan Pekerjaan Sesuai Profil'}
+                {isLoading ? <LoadingSpinner /> : 'Terapkan Preferensi & Cari Lowongan'}
               </Button>
               
               {error && (
@@ -161,7 +196,6 @@ export default function QeaCalculatorPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-              {/* QEA Score display removed from here */}
             </CardFooter>
           </form>
         </Form>
