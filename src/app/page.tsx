@@ -27,7 +27,7 @@ export default function LandingPage() {
             </Button>
             <Button asChild variant="outline" size="lg" className="bg-background/80 hover:bg-background text-foreground shadow-lg transition-transform hover:scale-105">
               <Link href="/qea-calculator">
-                Hitung Skor QEA <Calculator className="ml-2 h-5 w-5" />
+                Temukan Pekerjaan yang tepat <Calculator className="ml-2 h-5 w-5" />
               </Link>
             </Button>
           </div>
