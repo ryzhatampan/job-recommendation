@@ -8,7 +8,8 @@ import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'; // Removed FormLabel, FormDescription
+import { Label } from '@/components/ui/label'; // Added Label
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
@@ -141,55 +142,49 @@ export default function QeaCalculatorPage() {
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <FormItem>
-                <FormLabel className="flex items-center gap-2 text-md"><Briefcase className="h-5 w-5 text-muted-foreground" />Jurusan Kuliah</FormLabel>
+                <Label className="flex items-center gap-2 text-md"><Briefcase className="h-5 w-5 text-muted-foreground" />Jurusan Kuliah</Label>
                 <Select
                   onValueChange={(value) => setUserProfile(prev => ({ ...prev, major: value }))}
                   defaultValue={userProfile.major}
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih jurusan kuliah Anda" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih jurusan kuliah Anda" />
+                  </SelectTrigger>
                   <SelectContent>
                     {majorOptions.map(option => (
                       <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>Jurusan yang Anda tempuh atau telah selesaikan.</FormDescription>
+                <p className="text-sm text-muted-foreground">Jurusan yang Anda tempuh atau telah selesaikan.</p>
               </FormItem>
 
               <FormItem>
-                <FormLabel className="flex items-center gap-2 text-md"><GraduationCap className="h-5 w-5 text-muted-foreground" />Gelar Sarjana</FormLabel>
+                <Label className="flex items-center gap-2 text-md"><GraduationCap className="h-5 w-5 text-muted-foreground" />Gelar Sarjana</Label>
                  <Select
                   onValueChange={(value) => setUserProfile(prev => ({ ...prev, degree: value }))}
                   defaultValue={userProfile.degree}
                 >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih gelar sarjana Anda" />
-                    </SelectTrigger>
-                  </FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Pilih gelar sarjana Anda" />
+                  </SelectTrigger>
                   <SelectContent>
                     {degreeOptions.map(option => (
                       <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <FormDescription>Gelar akademis tertinggi yang Anda miliki.</FormDescription>
+                <p className="text-sm text-muted-foreground">Gelar akademis tertinggi yang Anda miliki.</p>
               </FormItem>
 
               <FormItem>
-                <FormLabel className="flex items-center gap-2 text-md"><Lightbulb className="h-5 w-5 text-muted-foreground" />Keahlian</FormLabel>
-                <FormControl>
+                <Label className="flex items-center gap-2 text-md"><Lightbulb className="h-5 w-5 text-muted-foreground" />Keahlian</Label>
                   <Input
                     placeholder="Contoh: UI/UX Design, Public Speaking, Data Analysis"
                     value={userProfile.skills || ''}
                     onChange={(e) => setUserProfile(prev => ({ ...prev, skills: e.target.value }))}
                   />
-                </FormControl>
-                <FormDescription>Masukkan keahlian yang Anda kuasai, pisahkan dengan koma.</FormDescription>
+                <p className="text-sm text-muted-foreground">Masukkan keahlian yang Anda kuasai, pisahkan dengan koma.</p>
               </FormItem>
 
               {profileError && (
@@ -226,7 +221,7 @@ export default function QeaCalculatorPage() {
                   name="workLifeBalanceRating"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2 text-md"><SunMoon className="h-5 w-5 text-muted-foreground" />Keseimbangan Kerja-Hidup ({field.value}/5)</FormLabel>
+                      <Label className="flex items-center gap-2 text-md"><SunMoon className="h-5 w-5 text-muted-foreground" />Keseimbangan Kerja-Hidup ({field.value}/5)</Label>
                       <FormControl>
                           <Slider
                               defaultValue={[field.value]}
@@ -237,7 +232,7 @@ export default function QeaCalculatorPage() {
                               className="py-2"
                           />
                       </FormControl>
-                      <FormDescription>Seberapa penting keseimbangan antara pekerjaan dan kehidupan pribadi bagi Anda?</FormDescription>
+                      <p className="text-sm text-muted-foreground">Seberapa penting keseimbangan antara pekerjaan dan kehidupan pribadi bagi Anda?</p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -249,13 +244,13 @@ export default function QeaCalculatorPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                       <div className="space-y-0.5">
-                          <FormLabel className="text-md flex items-center gap-2">
+                          <Label className="text-md flex items-center gap-2">
                               <BookOpen className="h-5 w-5 text-muted-foreground" />
                               Program Pembelajaran
-                          </FormLabel>
-                          <FormDescription>
+                          </Label>
+                          <p className="text-sm text-muted-foreground">
                               Apakah Anda mencari perusahaan dengan program pengembangan diri atau pelatihan?
-                          </FormDescription>
+                          </p>
                       </div>
                       <FormControl>
                         <Switch
@@ -274,13 +269,13 @@ export default function QeaCalculatorPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                        <div className="space-y-0.5">
-                          <FormLabel className="text-md flex items-center gap-2">
+                          <Label className="text-md flex items-center gap-2">
                               <Clock className="h-5 w-5 text-muted-foreground" />
                               Jam Kerja Fleksibel
-                          </FormLabel>
-                          <FormDescription>
+                          </Label>
+                          <p className="text-sm text-muted-foreground">
                              Apakah Anda menginginkan opsi jam kerja yang fleksibel?
-                          </FormDescription>
+                          </p>
                       </div>
                       <FormControl>
                         <Switch
@@ -299,13 +294,13 @@ export default function QeaCalculatorPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                       <div className="space-y-0.5">
-                          <FormLabel className="text-md flex items-center gap-2">
+                          <Label className="text-md flex items-center gap-2">
                               <Users className="h-5 w-5 text-muted-foreground" />
                               Program Mentorship
-                          </FormLabel>
-                          <FormDescription>
+                          </Label>
+                          <p className="text-sm text-muted-foreground">
                               Apakah Anda mencari perusahaan yang menyediakan program mentorship?
-                          </FormDescription>
+                          </p>
                       </div>
                       <FormControl>
                         <Switch
@@ -342,6 +337,5 @@ export default function QeaCalculatorPage() {
     </div>
   );
 }
-
 
     
