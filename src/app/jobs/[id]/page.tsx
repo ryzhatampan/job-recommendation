@@ -15,41 +15,43 @@ export default function JobDetailPage() {
   const params = useParams();
   const router = useRouter();
   const jobId = params.id as string;
-  const { jobs, isLoading: contextLoading, error: contextError, setJobs: setContextJobs, setIsLoading: setContextIsLoading, setError: setContextError } = useJobContext();
+  const { jobs, isLoading: contextLoading, error: contextError } = useJobContext();
   const [job, setJob] = useState<Job | null>(null);
-  const [pageLoading, setPageLoading] = useState<boolean>(true);
-  const [pageError, setPageError] = useState<string | null>(null);
+  const [pageLoading, setPageLoading] = useState<boolean>(true); // Page specific loading
+  const [pageError, setPageError] = useState<string | null>(null); // Page specific error
 
   useEffect(() => {
-    async function loadJob() {
-      setPageLoading(true);
-      setPageError(null);
+    setPageLoading(true); // Always start loading when jobId or context changes
+    setPageError(null);
 
-      if (jobId) {
-        if (jobs.length > 0) {
-          const foundJob = jobs.find(j => j.id.toString() === jobId);
-          if (foundJob) {
-            setJob(foundJob);
-          } else {
-            setPageError(`Pekerjaan dengan ID ${jobId} tidak ditemukan dalam daftar saat ini.`);
-          }
-          setPageLoading(false);
-        } else if (contextLoading) {
-          // Tunggu jika konteks sedang dimuat
-          return;
-        }
-         else {
-          // Tidak ada pekerjaan di konteks, dan tidak ada URL untuk diambil (karena JSON dari backend)
-           setPageError("Data pekerjaan tidak tersedia. Backend mungkin belum menyediakan data, atau pekerjaan tidak ditemukan.");
-           setPageLoading(false);
-        }
-      } else {
-        setPageError("ID pekerjaan tidak valid.");
-        setPageLoading(false);
-      }
+    if (contextLoading) {
+      // If context is still loading, wait for it.
+      // JobDetail component will show its own loading state or the context's.
+      return;
     }
-    loadJob();
-  }, [jobId, jobs, contextLoading, setContextJobs, setContextIsLoading, setContextError]);
+
+    if (contextError) {
+      setPageError(`Gagal memuat data pekerjaan: ${contextError}`);
+      setPageLoading(false);
+      return;
+    }
+
+    if (jobId && jobs.length > 0) {
+      const foundJob = jobs.find(j => j.id.toString() === jobId);
+      if (foundJob) {
+        setJob(foundJob);
+      } else {
+        setPageError(`Pekerjaan dengan ID ${jobId} tidak ditemukan.`);
+      }
+    } else if (jobId && !contextLoading && jobs.length === 0 && !contextError) {
+      // Context loaded, no jobs, and no error from context, means jobs.json might be empty or job not found.
+      setPageError(`Tidak ada data pekerjaan yang tersedia, atau pekerjaan dengan ID ${jobId} tidak ditemukan.`);
+    } else if (!jobId) {
+      setPageError("ID pekerjaan tidak valid.");
+    }
+    setPageLoading(false);
+
+  }, [jobId, jobs, contextLoading, contextError]);
 
 
   if (pageLoading || contextLoading) {
@@ -61,12 +63,12 @@ export default function JobDetailPage() {
     );
   }
 
-  if (pageError || contextError) {
+  if (pageError) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] space-y-4">
         <Alert variant="destructive" className="max-w-md">
           <AlertTitle>Error</AlertTitle>
-          <AlertDescription>{pageError || contextError}</AlertDescription>
+          <AlertDescription>{pageError}</AlertDescription>
         </Alert>
         <Button onClick={() => router.push('/')} variant="outline">
           <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Halaman Utama

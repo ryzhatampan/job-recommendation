@@ -12,14 +12,17 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8">
-      {/* Bagian UrlInputForm dihapus */}
-
-      {isLoading && <LoadingSpinner />}
+      {isLoading && (
+        <div className="flex flex-col items-center justify-center pt-10">
+          <LoadingSpinner />
+          <p className="mt-4 text-muted-foreground">Memuat daftar pekerjaan...</p>
+        </div>
+      )}
       
       {error && !isLoading && (
         <Alert variant="destructive" className="mt-4">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Error</AlertTitle>
+          <AlertTitle>Error Memuat Pekerjaan</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
@@ -33,7 +36,7 @@ export default function HomePage() {
       
       {!isLoading && !error && jobs.length === 0 && (
          <div className="text-center py-10">
-          <p className="text-muted-foreground text-lg">Tidak ada daftar pekerjaan untuk ditampilkan. Backend akan menyediakan data.</p>
+          <p className="text-muted-foreground text-lg">Tidak ada daftar pekerjaan untuk ditampilkan. Pastikan file `/public/data/jobs.json` ada dan berisi data pekerjaan yang valid.</p>
         </div>
       )}
     </div>
