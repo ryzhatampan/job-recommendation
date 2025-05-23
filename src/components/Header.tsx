@@ -1,5 +1,5 @@
 
-import { Briefcase } from 'lucide-react';
+import { Briefcase, BarChartBig } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Header() {
@@ -10,7 +10,21 @@ export default function Header() {
           <Briefcase className="h-7 w-7 text-primary" />
           FutureGen Career Guide
         </Link>
-        {/* Future navigation items can go here */}
+        <nav>
+          <ul className="flex items-center gap-6">
+            <li>
+              <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                Daftar Pekerjaan
+              </Link>
+            </li>
+            <li>
+              <Link href="/qea-calculator" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <BarChartBig className="h-5 w-5" />
+                Kalkulator QEA
+              </Link>
+            </li>
+          </ul>
+        </nav>
       </div>
     </header>
   );
