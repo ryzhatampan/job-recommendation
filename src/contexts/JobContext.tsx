@@ -7,8 +7,7 @@ import React, { createContext, useState, useContext, type ReactNode } from "reac
 interface JobContextType {
   jobs: Job[];
   setJobs: (jobs: Job[]) => void;
-  jobListUrl: string;
-  setJobListUrl: (url: string) => void;
+  // jobListUrl and setJobListUrl removed
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   error: string | null;
@@ -19,7 +18,7 @@ const JobContext = createContext<JobContextType | undefined>(undefined);
 
 export const JobProvider = ({ children }: { children: ReactNode }) => {
   const [jobs, setJobs] = useState<Job[]>([]);
-  const [jobListUrl, setJobListUrl] = useState<string>("");
+  // jobListUrl state removed
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +27,7 @@ export const JobProvider = ({ children }: { children: ReactNode }) => {
       value={{
         jobs,
         setJobs,
-        jobListUrl,
-        setJobListUrl,
+        // jobListUrl and setJobListUrl removed from value
         isLoading,
         setIsLoading,
         error,

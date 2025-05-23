@@ -1,7 +1,6 @@
 
 "use client";
 
-import UrlInputForm from "@/components/UrlInputForm";
 import JobList from "@/components/JobList";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import { useJobContext } from "@/contexts/JobContext";
@@ -13,10 +12,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-8">
-      <section aria-labelledby="job-url-input-heading">
-        <h1 id="job-url-input-heading" className="sr-only">Enter Job List URL</h1>
-        <UrlInputForm />
-      </section>
+      {/* Bagian UrlInputForm dihapus */}
 
       {isLoading && <LoadingSpinner />}
       
@@ -37,7 +33,7 @@ export default function HomePage() {
       
       {!isLoading && !error && jobs.length === 0 && (
          <div className="text-center py-10">
-          <p className="text-muted-foreground text-lg">Enter a URL above to fetch and display job listings.</p>
+          <p className="text-muted-foreground text-lg">Tidak ada daftar pekerjaan untuk ditampilkan. Backend akan menyediakan data.</p>
         </div>
       )}
     </div>
