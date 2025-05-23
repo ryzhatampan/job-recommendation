@@ -1,0 +1,45 @@
+
+{
+  "jobs": [
+    {
+      "id": 1,
+      "title": "Software Engineer Example",
+      "company": "Contoh Perusahaan",
+      "location": "Jakarta, Indonesia",
+      "workType": "remote",
+      "salary": 15000000,
+      "requiredSkills": ["JavaScript", "React", "Node.js"],
+      "industry": "Teknologi",
+      "description": "Ini adalah deskripsi pekerjaan contoh untuk Software Engineer. Bertanggung jawab untuk mengembangkan dan memelihara aplikasi web.",
+      "workLifeBalanceRating": 4.2,
+      "careerPath": {
+        "nextRole": "Senior Software Engineer",
+        "timeframe": "2-3 tahun",
+        "salaryIncrease": 20
+      },
+      "benefits": ["Asuransi Kesehatan", "Tunjangan Transportasi", "Cuti Tahunan"],
+      "workCulture": "startup",
+      "learningPrograms": true,
+      "hasMentorship": true,
+      "flexibleHours": true,
+      "agePreference": [22, 35]
+    },
+    {
+      "id": 2,
+      "title": "Product Manager Example",
+      "company": "Perusahaan Lain",
+      "location": "Surabaya, Indonesia",
+      "workType": "hybrid",
+      "salary": 20000000,
+      "requiredSkills": ["Product Management", "Agile", "Market Research"],
+      "industry": "E-commerce",
+      "description": "Deskripsi contoh untuk Product Manager. Anda akan memimpin strategi produk dan roadmap.",
+      "workLifeBalanceRating": 4.0,
+      "benefits": ["Bonus Kinerja", "Saham Perusahaan"],
+      "workCulture": "corporate",
+      "learningPrograms": false,
+      "hasMentorship": true,
+      "flexibleHours": false
+    }
+  ]
+}
