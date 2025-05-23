@@ -4,13 +4,18 @@ import type { Job } from '@/types/job';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Briefcase, MapPin, DollarSign, BarChartBig } from 'lucide-react';
+import { Briefcase, MapPin, DollarSign, BarChartBig, Sparkles } from 'lucide-react';
 
 interface JobCardProps {
   job: Job;
 }
 
 export default function JobCard({ job }: JobCardProps) {
+  const displayQeaScore = job.personalizedQeaScore ?? job.qeaScore;
+  const qeaScoreLabel = job.personalizedQeaScore !== undefined ? "Personalized QEA" : "QEA Score";
+  const QeaIcon = job.personalizedQeaScore !== undefined ? Sparkles : BarChartBig;
+
+
   return (
     <Card className="w-full hover:shadow-lg transition-shadow duration-300 flex flex-col">
       <CardHeader>
@@ -28,10 +33,10 @@ export default function JobCard({ job }: JobCardProps) {
           <DollarSign className="h-4 w-4" />
           <span>{job.salary ? job.salary.toLocaleString('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }) : 'Not specified'}</span>
         </div>
-         {job.qeaScore !== undefined && (
+         {displayQeaScore !== undefined && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <BarChartBig className="h-4 w-4" />
-            <span>QEA Score: <Badge variant="secondary">{job.qeaScore.toFixed(1)}</Badge></span>
+            <QeaIcon className="h-4 w-4" />
+            <span>{qeaScoreLabel}: <Badge variant="secondary">{displayQeaScore.toFixed(1)}</Badge></span>
           </div>
         )}
         <div>

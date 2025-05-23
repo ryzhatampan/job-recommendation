@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 
 interface JobListProps {
-  jobs: Job[];
+  jobs: Job[]; // Expects jobs that might have personalizedQeaScore
 }
 
 type SortKey = "qeaScore" | "salary" | "title" | "company";
@@ -24,8 +24,9 @@ export default function JobList({ jobs }: JobListProps) {
 
       switch (sortKey) {
         case "qeaScore":
-          valA = a.qeaScore;
-          valB = b.qeaScore;
+          // Prioritize personalizedQeaScore if available, otherwise fallback to generic qeaScore
+          valA = a.personalizedQeaScore ?? a.qeaScore;
+          valB = b.personalizedQeaScore ?? b.qeaScore;
           break;
         case "salary":
           valA = a.salary;
@@ -43,11 +44,9 @@ export default function JobList({ jobs }: JobListProps) {
           return 0;
       }
       
-      // Handle undefined values by pushing them to the end when ascending, beginning when descending
       if (valA === undefined && valB === undefined) return 0;
-      if (valA === undefined) return sortOrder === 'asc' ? 1 : -1;
+      if (valA === undefined) return sortOrder === 'asc' ? 1 : -1; // Push undefined to the end for asc, beginning for desc
       if (valB === undefined) return sortOrder === 'asc' ? -1 : 1;
-
 
       if (typeof valA === 'string' && typeof valB === 'string') {
         return sortOrder === "asc" ? valA.localeCompare(valB) : valB.localeCompare(valA);
@@ -60,7 +59,8 @@ export default function JobList({ jobs }: JobListProps) {
   }, [jobs, sortKey, sortOrder]);
 
   if (jobs.length === 0) {
-    return <p className="text-center text-muted-foreground py-8">No jobs to display. Try fetching a job list.</p>;
+    // Message will be handled by the parent page (JobsPage)
+    return null; 
   }
 
   return (

@@ -23,7 +23,8 @@ export interface Job {
   hasMentorship: boolean;
   flexibleHours: boolean;
   agePreference?: [number, number]; // Optional as per example, e.g. [25, 43]
-  qeaScore?: number; // To be calculated
+  qeaScore?: number; // Generic QEA score
+  personalizedQeaScore?: number; // QEA score personalized to user preferences
 }
 
 export interface JobListResponse {

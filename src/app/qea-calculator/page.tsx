@@ -5,32 +5,30 @@ import { useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation'; // Import useRouter
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { calculateQEA } from '@/lib/qea';
-import type { Job } from '@/types/job';
 import { BarChartBig, Wrench, GraduationCap, Award, Sparkles, Info } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
-import { deriveQeaParameters, type DeriveQeaParametersInput } from '@/ai/flows/derive-qea-parameters-flow'; // Flow baru
+import { deriveQeaParameters, type DeriveQeaParametersInput, type DeriveQeaParametersOutput } from '@/ai/flows/derive-qea-parameters-flow';
 
-// Skema baru untuk form validasi
 const qeaFormSchema = z.object({
   skills: z.string().min(3, "Keahlian harus diisi, minimal 3 karakter.").default(""),
   major: z.string().min(3, "Jurusan harus diisi, minimal 3 karakter.").default(""),
   degree: z.string().min(2, "Gelar harus diisi, minimal 2 karakter.").default(""),
-  benefits: z.string().min(10, "Deskripsi benefit yang diharapkan minimal 10 karakter.").default(""),
+  benefitsExpected: z.string().min(10, "Deskripsi benefit yang diharapkan minimal 10 karakter.").default(""), // Changed from benefits to benefitsExpected
 });
 
 type QeaFormValues = z.infer<typeof qeaFormSchema>;
 
 export default function QeaCalculatorPage() {
-  const [qeaScore, setQeaScore] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter(); // Initialize useRouter
 
   const form = useForm<QeaFormValues>({
     resolver: zodResolver(qeaFormSchema),
@@ -38,51 +36,37 @@ export default function QeaCalculatorPage() {
       skills: '',
       major: '',
       degree: '',
-      benefits: '',
+      benefitsExpected: '',
     },
   });
 
   const onSubmit: SubmitHandler<QeaFormValues> = async (data) => {
     setIsLoading(true);
     setError(null);
-    setQeaScore(null);
 
     try {
       const derivedParamsInput: DeriveQeaParametersInput = {
         skills: data.skills,
         major: data.major,
         degree: data.degree,
-        benefitsExpected: data.benefits, // Sesuaikan nama field dengan input schema flow
+        benefitsExpected: data.benefitsExpected,
       };
       
-      const derivedParams = await deriveQeaParameters(derivedParamsInput);
+      const derivedParams: DeriveQeaParametersOutput = await deriveQeaParameters(derivedParamsInput);
 
-      const jobDataForQea: Job = {
-        workLifeBalanceRating: derivedParams.workLifeBalanceRating,
-        learningPrograms: derivedParams.learningPrograms,
-        flexibleHours: derivedParams.flexibleHours,
-        hasMentorship: derivedParams.hasMentorship,
-        
-        // Dummy values untuk field Job lainnya yang dibutuhkan oleh calculateQEA
-        id: 0, 
-        title: 'Profil Pengguna',
-        company: 'N/A',
-        location: 'N/A',
-        workType: 'N/A', 
-        salary: 0, 
-        requiredSkills: data.skills.split(',').map(s => s.trim()), 
-        industry: 'N/A', 
-        description: 'Berdasarkan input pengguna.', 
-        benefits: data.benefits.split(',').map(b => b.trim()), // Bisa juga dari input benefits
-        workCulture: 'N/A',
-      };
+      // Construct query string for navigation
+      const queryParams = new URLSearchParams({
+        pref_wlb: derivedParams.workLifeBalanceRating.toString(),
+        pref_lp: derivedParams.learningPrograms.toString(),
+        pref_fh: derivedParams.flexibleHours.toString(),
+        pref_hm: derivedParams.hasMentorship.toString(),
+      });
 
-      const score = calculateQEA(jobDataForQea);
-      setQeaScore(score);
+      router.push(`/jobs?${queryParams.toString()}`);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Gagal memproses permintaan.";
-      console.error("QEA calculation error:", errorMessage);
+      console.error("QEA derivation or navigation error:", errorMessage);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -95,10 +79,10 @@ export default function QeaCalculatorPage() {
         <CardHeader className="bg-card">
           <CardTitle className="text-2xl flex items-center gap-3">
             <BarChartBig className="h-7 w-7 text-primary" />
-            Kalkulator QEA Berbasis Profil
+            Kalkulator Preferensi Karir (QEA)
           </CardTitle>
           <CardDescription>
-            Masukkan detail profil Anda untuk memperkirakan skor Quality of Employment Attributes (QEA) yang sesuai.
+            Masukkan detail profil Anda. Kami akan menganalisisnya untuk menemukan pekerjaan yang paling sesuai dengan preferensi Quality of Employment Attributes (QEA) Anda.
           </CardDescription>
         </CardHeader>
         <Form {...form}>
@@ -151,7 +135,7 @@ export default function QeaCalculatorPage() {
               
               <FormField
                 control={form.control}
-                name="benefits"
+                name="benefitsExpected" // Changed from benefits to benefitsExpected
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="flex items-center gap-2 text-md"><Sparkles className="h-5 w-5 text-muted-foreground" />Benefit yang Diharapkan</FormLabel>
@@ -167,7 +151,7 @@ export default function QeaCalculatorPage() {
             </CardContent>
             <CardFooter className="flex flex-col items-stretch gap-4 pt-6">
               <Button type="submit" className="w-full text-base py-3" disabled={isLoading}>
-                {isLoading ? <LoadingSpinner /> : 'Hitung Skor QEA'}
+                {isLoading ? <LoadingSpinner /> : 'Temukan Pekerjaan Sesuai Profil'}
               </Button>
               
               {error && (
@@ -177,16 +161,7 @@ export default function QeaCalculatorPage() {
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
-
-              {qeaScore !== null && !isLoading && !error && (
-                <Alert variant="default" className="mt-6 bg-primary/10 border-primary/30 rounded-lg p-6">
-                   <BarChartBig className="h-6 w-6 text-primary" />
-                  <AlertTitle className="font-semibold text-primary text-xl">Skor QEA Dihitung!</AlertTitle>
-                  <AlertDescription className="text-2xl font-bold text-foreground mt-2">
-                    Estimasi Skor QEA untuk profil Anda adalah: {qeaScore.toFixed(1)} / 100
-                  </AlertDescription>
-                </Alert>
-              )}
+              {/* QEA Score display removed from here */}
             </CardFooter>
           </form>
         </Form>
@@ -194,5 +169,3 @@ export default function QeaCalculatorPage() {
     </div>
   );
 }
-
-    
