@@ -1,5 +1,5 @@
 
-import { Briefcase, BarChartBig } from 'lucide-react';
+import { Briefcase, BarChartBig, Home } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Header() {
@@ -11,16 +11,23 @@ export default function Header() {
           FutureGen Career Guide
         </Link>
         <nav>
-          <ul className="flex items-center gap-6">
+          <ul className="flex items-center gap-4 md:gap-6">
             <li>
-              <Link href="/" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                Daftar Pekerjaan
+              <Link href="/" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <Home className="h-4 w-4 md:h-5 md:w-5" />
+                <span className="hidden sm:inline">Beranda</span>
               </Link>
             </li>
             <li>
-              <Link href="/qea-calculator" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
-                <BarChartBig className="h-5 w-5" />
-                Kalkulator QEA
+              <Link href="/jobs" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <Briefcase className="h-4 w-4 md:h-5 md:w-5" />
+                 <span className="hidden sm:inline">Lowongan</span>
+              </Link>
+            </li>
+            <li>
+              <Link href="/qea-calculator" className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+                <BarChartBig className="h-4 w-4 md:h-5 md:w-5" />
+                 <span className="hidden sm:inline">Kalkulator QEA</span>
               </Link>
             </li>
           </ul>
