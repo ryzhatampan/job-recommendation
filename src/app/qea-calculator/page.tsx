@@ -1,23 +1,54 @@
-
 "use client";
 
-import { useState } from 'react';
-import { useForm, type SubmitHandler } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form'; // Removed FormLabel, FormDescription
-import { Label } from '@/components/ui/label'; // Added Label
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useState } from "react";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form"; // Removed FormLabel, FormDescription
+import { Label } from "@/components/ui/label"; // Added Label
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { BarChartBig, SunMoon, BookOpen, Clock, Users, Info, GraduationCap, Lightbulb, Briefcase, ArrowRight, ArrowLeft } from 'lucide-react';
-import LoadingSpinner from '@/components/LoadingSpinner';
-import type { UserQeaPreferences } from '@/lib/qea';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  BarChartBig,
+  SunMoon,
+  BookOpen,
+  Clock,
+  Users,
+  Info,
+  GraduationCap,
+  Lightbulb,
+  Briefcase,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import type { UserQeaPreferences } from "@/lib/qea";
+import { log } from "node:console";
 
 // Schema untuk Step 2
 const qeaPreferencesSchema = z.object({
@@ -58,7 +89,6 @@ const degreeOptions = [
   { value: "s3", label: "S3 - Doktor" },
 ];
 
-
 export default function QeaCalculatorPage() {
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [userProfile, setUserProfile] = useState<Partial<UserProfileData>>({});
@@ -91,7 +121,9 @@ export default function QeaCalculatorPage() {
     setCurrentStep(1);
   };
 
-  const onSubmitPreferences: SubmitHandler<QeaPreferencesFormValues> = async (dataStep2) => {
+  const onSubmitPreferences: SubmitHandler<QeaPreferencesFormValues> = async (
+    dataStep2
+  ) => {
     setIsLoading(true);
     setError(null);
 
@@ -102,12 +134,12 @@ export default function QeaCalculatorPage() {
         flexibleHours: dataStep2.flexibleHours,
         hasMentorship: dataStep2.hasMentorship,
       };
-      
+
       const queryParams = new URLSearchParams({
         // Data dari Step 1
-        major: userProfile.major || '',
-        degree: userProfile.degree || '',
-        skills: userProfile.skills || '',
+        major: userProfile.major || "",
+        degree: userProfile.degree || "",
+        skills: userProfile.skills || "",
         // Data dari Step 2
         pref_wlb: finalPreferences.workLifeBalanceRating.toString(),
         pref_lp: finalPreferences.learningPrograms.toString(),
@@ -116,10 +148,13 @@ export default function QeaCalculatorPage() {
       });
 
       router.push(`/jobs?${queryParams.toString()}`);
-
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Gagal memproses permintaan.";
-      console.error("QEA preference submission or navigation error:", errorMessage);
+      const errorMessage =
+        err instanceof Error ? err.message : "Gagal memproses permintaan.";
+      console.error(
+        "QEA preference submission or navigation error:",
+        errorMessage
+      );
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -137,58 +172,91 @@ export default function QeaCalculatorPage() {
                 Step 1: Profil Anda
               </CardTitle>
               <CardDescription>
-                Lengkapi profil Anda untuk membantu kami menemukan preferensi yang sesuai.
+                Lengkapi profil Anda untuk membantu kami menemukan preferensi
+                yang sesuai.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 pt-6">
               <FormItem>
-                <Label className="flex items-center gap-2 text-md"><Briefcase className="h-5 w-5 text-muted-foreground" />Jurusan Kuliah</Label>
+                <Label className="flex items-center gap-2 text-md">
+                  <Briefcase className="h-5 w-5 text-muted-foreground" />
+                  Jurusan Kuliah
+                </Label>
                 <Select
-                  onValueChange={(value) => setUserProfile(prev => ({ ...prev, major: value }))}
-                  defaultValue={userProfile.major}
-                >
+                  onValueChange={(value) =>
+                    setUserProfile((prev) => ({ ...prev, major: value }))
+                  }
+                  defaultValue={userProfile.major}>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih jurusan kuliah Anda" />
                   </SelectTrigger>
                   <SelectContent>
-                    {majorOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    {majorOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}>
+                        {option.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-sm text-muted-foreground">Jurusan yang Anda tempuh atau telah selesaikan.</p>
+                <p className="text-sm text-muted-foreground">
+                  Jurusan yang Anda tempuh atau telah selesaikan.
+                </p>
               </FormItem>
 
               <FormItem>
-                <Label className="flex items-center gap-2 text-md"><GraduationCap className="h-5 w-5 text-muted-foreground" />Gelar Sarjana</Label>
-                 <Select
-                  onValueChange={(value) => setUserProfile(prev => ({ ...prev, degree: value }))}
-                  defaultValue={userProfile.degree}
-                >
+                <Label className="flex items-center gap-2 text-md">
+                  <GraduationCap className="h-5 w-5 text-muted-foreground" />
+                  Gelar Sarjana
+                </Label>
+                <Select
+                  onValueChange={(value) =>
+                    setUserProfile((prev) => ({ ...prev, degree: value }))
+                  }
+                  defaultValue={userProfile.degree}>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih gelar sarjana Anda" />
                   </SelectTrigger>
                   <SelectContent>
-                    {degreeOptions.map(option => (
-                      <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+                    {degreeOptions.map((option) => (
+                      <SelectItem
+                        key={option.value}
+                        value={option.value}>
+                        {option.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                <p className="text-sm text-muted-foreground">Gelar akademis tertinggi yang Anda miliki.</p>
+                <p className="text-sm text-muted-foreground">
+                  Gelar akademis tertinggi yang Anda miliki.
+                </p>
               </FormItem>
 
               <FormItem>
-                <Label className="flex items-center gap-2 text-md"><Lightbulb className="h-5 w-5 text-muted-foreground" />Keahlian</Label>
-                  <Input
-                    placeholder="Contoh: UI/UX Design, Public Speaking, Data Analysis"
-                    value={userProfile.skills || ''}
-                    onChange={(e) => setUserProfile(prev => ({ ...prev, skills: e.target.value }))}
-                  />
-                <p className="text-sm text-muted-foreground">Masukkan keahlian yang Anda kuasai, pisahkan dengan koma.</p>
+                <Label className="flex items-center gap-2 text-md">
+                  <Lightbulb className="h-5 w-5 text-muted-foreground" />
+                  Keahlian
+                </Label>
+                <Input
+                  placeholder="Contoh: UI/UX Design, Public Speaking, Data Analysis"
+                  value={userProfile.skills || ""}
+                  onChange={(e) =>
+                    setUserProfile((prev) => ({
+                      ...prev,
+                      skills: e.target.value,
+                    }))
+                  }
+                />
+                <p className="text-sm text-muted-foreground">
+                  Masukkan keahlian yang Anda kuasai, pisahkan dengan koma.
+                </p>
               </FormItem>
 
               {profileError && (
-                <Alert variant="destructive" className="mt-4">
+                <Alert
+                  variant="destructive"
+                  className="mt-4">
                   <Info className="h-4 w-4" />
                   <AlertTitle>Validasi Gagal</AlertTitle>
                   <AlertDescription>{profileError}</AlertDescription>
@@ -196,7 +264,9 @@ export default function QeaCalculatorPage() {
               )}
             </CardContent>
             <CardFooter className="flex justify-end pt-6">
-              <Button onClick={handleNextStep} className="text-base py-3">
+              <Button
+                onClick={handleNextStep}
+                className="text-base py-3">
                 Lanjut ke Step 2 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </CardFooter>
@@ -221,18 +291,24 @@ export default function QeaCalculatorPage() {
                   name="workLifeBalanceRating"
                   render={({ field }) => (
                     <FormItem>
-                      <Label className="flex items-center gap-2 text-md"><SunMoon className="h-5 w-5 text-muted-foreground" />Keseimbangan Kerja-Hidup ({field.value}/5)</Label>
+                      <Label className="flex items-center gap-2 text-md">
+                        <SunMoon className="h-5 w-5 text-muted-foreground" />
+                        Keseimbangan Kerja-Hidup ({field.value}/5)
+                      </Label>
                       <FormControl>
-                          <Slider
-                              defaultValue={[field.value]}
-                              min={0}
-                              max={5}
-                              step={0.5}
-                              onValueChange={(value) => field.onChange(value[0])}
-                              className="py-2"
-                          />
+                        <Slider
+                          defaultValue={[field.value]}
+                          min={0}
+                          max={5}
+                          step={0.5}
+                          onValueChange={(value) => field.onChange(value[0])}
+                          className="py-2"
+                        />
                       </FormControl>
-                      <p className="text-sm text-muted-foreground">Seberapa penting keseimbangan antara pekerjaan dan kehidupan pribadi bagi Anda?</p>
+                      <p className="text-sm text-muted-foreground">
+                        Seberapa penting keseimbangan antara pekerjaan dan
+                        kehidupan pribadi bagi Anda?
+                      </p>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -244,13 +320,14 @@ export default function QeaCalculatorPage() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                       <div className="space-y-0.5">
-                          <Label className="text-md flex items-center gap-2">
-                              <BookOpen className="h-5 w-5 text-muted-foreground" />
-                              Program Pembelajaran
-                          </Label>
-                          <p className="text-sm text-muted-foreground">
-                              Apakah Anda mencari perusahaan dengan program pengembangan diri atau pelatihan?
-                          </p>
+                        <Label className="text-md flex items-center gap-2">
+                          <BookOpen className="h-5 w-5 text-muted-foreground" />
+                          Program Pembelajaran
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Apakah Anda mencari perusahaan dengan program
+                          pengembangan diri atau pelatihan?
+                        </p>
                       </div>
                       <FormControl>
                         <Switch
@@ -258,7 +335,7 @@ export default function QeaCalculatorPage() {
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -268,14 +345,15 @@ export default function QeaCalculatorPage() {
                   name="flexibleHours"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
-                       <div className="space-y-0.5">
-                          <Label className="text-md flex items-center gap-2">
-                              <Clock className="h-5 w-5 text-muted-foreground" />
-                              Jam Kerja Fleksibel
-                          </Label>
-                          <p className="text-sm text-muted-foreground">
-                             Apakah Anda menginginkan opsi jam kerja yang fleksibel?
-                          </p>
+                      <div className="space-y-0.5">
+                        <Label className="text-md flex items-center gap-2">
+                          <Clock className="h-5 w-5 text-muted-foreground" />
+                          Jam Kerja Fleksibel
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Apakah Anda menginginkan opsi jam kerja yang
+                          fleksibel?
+                        </p>
                       </div>
                       <FormControl>
                         <Switch
@@ -283,24 +361,25 @@ export default function QeaCalculatorPage() {
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
-                
+
                 <FormField
                   control={formStep2.control}
                   name="hasMentorship"
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
                       <div className="space-y-0.5">
-                          <Label className="text-md flex items-center gap-2">
-                              <Users className="h-5 w-5 text-muted-foreground" />
-                              Program Mentorship
-                          </Label>
-                          <p className="text-sm text-muted-foreground">
-                              Apakah Anda mencari perusahaan yang menyediakan program mentorship?
-                          </p>
+                        <Label className="text-md flex items-center gap-2">
+                          <Users className="h-5 w-5 text-muted-foreground" />
+                          Program Mentorship
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          Apakah Anda mencari perusahaan yang menyediakan
+                          program mentorship?
+                        </p>
                       </div>
                       <FormControl>
                         <Switch
@@ -308,22 +387,35 @@ export default function QeaCalculatorPage() {
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
-                       <FormMessage />
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
               </CardContent>
               <CardFooter className="flex flex-col items-stretch gap-4 pt-6">
                 <div className="flex justify-between w-full">
-                  <Button type="button" variant="outline" onClick={handlePreviousStep} className="text-base py-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handlePreviousStep}
+                    className="text-base py-3">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Kembali ke Step 1
                   </Button>
-                  <Button type="submit" className="text-base py-3" disabled={isLoading}>
-                    {isLoading ? <LoadingSpinner /> : 'Terapkan Preferensi & Cari Lowongan'}
+                  <Button
+                    type="submit"
+                    className="text-base py-3"
+                    disabled={isLoading}>
+                    {isLoading ? (
+                      <LoadingSpinner />
+                    ) : (
+                      "Terapkan Preferensi & Cari Lowongan"
+                    )}
                   </Button>
                 </div>
                 {error && (
-                  <Alert variant="destructive" className="mt-4">
+                  <Alert
+                    variant="destructive"
+                    className="mt-4">
                     <Info className="h-4 w-4" />
                     <AlertTitle>Error</AlertTitle>
                     <AlertDescription>{error}</AlertDescription>
@@ -337,5 +429,3 @@ export default function QeaCalculatorPage() {
     </div>
   );
 }
-
-    
