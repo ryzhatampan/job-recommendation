@@ -19,7 +19,6 @@ import { Separator } from "@/components/ui/separator";
 import LoadingSpinner from "./LoadingSpinner";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
-// Alias-kan BarChart3 sebagai BarChartBig (agar tidak error di versi lucide-react tertentu)
 import {
   BarChart3 as BarChartBig,
   AlertCircle,
@@ -34,6 +33,7 @@ import {
   XCircle,
   Clock,
   Award,
+  Info, // ⬅️ dipakai untuk icon info
 } from "lucide-react";
 
 interface JobDetailProps {
@@ -135,11 +135,13 @@ export default function JobDetail({ job }: JobDetailProps) {
         <section aria-labelledby="gen-z-summary-heading">
           <h2
             id="gen-z-summary-heading"
-            className="text-xl font-semibold mb-2 text-primary flex items-center gap-2"
+            className="text-xl font-semibold mb-2 text-foreground flex items-center gap-2"
           >
             <Zap className="h-5 w-5" /> Gen Z Vibe Check
           </h2>
+
           {summaryLoading && <LoadingSpinner />}
+
           {summaryError && (
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
@@ -147,10 +149,14 @@ export default function JobDetail({ job }: JobDetailProps) {
               <AlertDescription>{summaryError}</AlertDescription>
             </Alert>
           )}
+
           {summary && !summaryLoading && (
-            <div className="bg-accent/20 p-4 rounded-md border border-accent text-accent-foreground">
-              <p className="text-sm leading-relaxed">{summary}</p>
-            </div>
+            <Alert variant="info" className="mt-2">
+              <Info className="h-4 w-4" />
+              <AlertDescription className="text-sm leading-relaxed">
+                {summary}
+              </AlertDescription>
+            </Alert>
           )}
         </section>
 
