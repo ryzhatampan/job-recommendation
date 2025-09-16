@@ -1,7 +1,7 @@
 // app/jobs/JobsPageClient.tsx
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";            // ⟵ tambah useEffect
 import { useSearchParams } from "next/navigation";
 import JobList from "@/components/JobList";
 import LoadingSpinner from "@/components/LoadingSpinner";
@@ -9,10 +9,21 @@ import { useJobContext } from "@/contexts/JobContext";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { calculateQEA, type UserQeaPreferences } from "@/lib/qea";
+import { appendLog } from "@/lib/activity";             // ⟵ tambah import log
 
 export default function JobsPageClient() {
   const { jobs: originalJobs, isLoading, error } = useJobContext();
   const searchParams = useSearchParams();
+
+  // ⟵ catat sekali setiap searchParams berubah (/jobs dibuka dengan query)
+  useEffect(() => {
+    const payload = Object.fromEntries(searchParams.entries());
+    appendLog({
+      page: "/jobs",
+      action: "load_with_preferences",
+      payload,
+    });
+  }, [searchParams]);
 
   const userPreferences = useMemo((): UserQeaPreferences | undefined => {
     const prefWLB = searchParams.get("pref_wlb");
@@ -33,13 +44,11 @@ export default function JobsPageClient() {
 
   const processedJobs = useMemo(() => {
     if (!userPreferences) {
-      // Tanpa preferensi, pakai QEA default
       return originalJobs.map(job => ({
         ...job,
         personalizedQeaScore: job.qeaScore,
       }));
     }
-    // Dengan preferensi, hitung QEA personal
     return originalJobs.map(job => ({
       ...job,
       personalizedQeaScore: calculateQEA(job, userPreferences),

@@ -1,5 +1,6 @@
 "use client";
 
+import { appendLog } from "@/lib/activity";
 import { useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -114,6 +115,14 @@ export default function QeaCalculatorPage() {
       return;
     }
     setProfileError(null);
+
+    appendLog({
+      page: "/qea-calculator",
+      action: "next_step",
+      payload: { ...userProfile },
+    });
+
+
     setCurrentStep(2);
   };
 
@@ -146,6 +155,17 @@ export default function QeaCalculatorPage() {
         pref_fh: finalPreferences.flexibleHours.toString(),
         pref_hm: finalPreferences.hasMentorship.toString(),
       });
+
+      appendLog({
+      page: "/qea-calculator",
+      action: "submit_preferences",
+      payload: {
+        ...finalPreferences,
+        major: userProfile.major,
+        degree: userProfile.degree,
+        skills: userProfile.skills,
+      },
+    });
 
       router.push(`/jobs?${queryParams.toString()}`);
     } catch (err) {
